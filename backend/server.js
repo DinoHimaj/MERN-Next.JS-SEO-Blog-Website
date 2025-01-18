@@ -6,6 +6,9 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 require('dotenv').config();
 
+//routes
+const blogRoutes = require('./routes/blog');
+
 //app
 const app = express();
 
@@ -19,6 +22,9 @@ mongoose
 app.use(morgan('dev'));
 app.use(bodyParser.json());
 app.use(cookieParser());
+
+//routes middleware
+app.use('/api', blogRoutes);
 
 //cors
 if (process.env.NODE_ENV === 'development') {
