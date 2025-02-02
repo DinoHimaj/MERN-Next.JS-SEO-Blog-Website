@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    salt: Number,
+    salt: String,
     about: {
       type: String,
     },
@@ -55,11 +55,8 @@ const userSchema = new mongoose.Schema(
 userSchema
   .virtual('password')
   .set(function (password) {
-    //create a temporary variable called _password
     this._password = password;
-    //generate salt
-    this.salt = makeSalt();
-    //encrypt password
+    this.salt = this.makeSalt();
     this.hashed_password = this.encryptPassword(password);
   })
   .get(function () {
