@@ -1,5 +1,7 @@
 const User = require('../models/user');
 const shortId = require('shortid');
+const jwt = require('jsonwebtoken');
+const expressJwt = require('express-jwt');
 
 exports.signup = async (req, res) => {
   try {
@@ -27,6 +29,47 @@ exports.signup = async (req, res) => {
     console.error('Signup error:', err);
     return res.status(400).json({
       error: 'Signup failed. Please try again later.',
+    });
+  }
+};
+
+exports.signin = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    //check if user exists
+    const user = await User.findOne({ email }).exec();
+
+    if (!user) {
+      return res.status(400).json({
+        error: 'User with this email does not exist. Please signup first.',
+      });
+    }
+
+    //authenticate user
+    if (!user.authenticate(password)) {
+      return res.status(400).json({
+        error: 'Invalid password',
+      });
+    }
+
+    //create jwt token
+    const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: '1d',
+    });
+
+    //put token in cookie
+    res.cookie('token', token, { expiresIn: '1d' });
+
+    //return response
+    const { _id, username, name, role } = user;
+    return res.json({
+      token,
+      user: { _id, username, name, email, role },
+    });
+  } catch (err) {
+    return res.status(400).json({
+      error: 'Signin failed. Please try again.',
     });
   }
 };
