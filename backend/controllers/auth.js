@@ -1,7 +1,7 @@
 const User = require('../models/user');
 const shortId = require('shortid');
 const jwt = require('jsonwebtoken');
-const expressJwt = require('express-jwt');
+const { expressjwt: expressJwt } = require('express-jwt');
 
 exports.signup = async (req, res) => {
   try {
@@ -73,3 +73,15 @@ exports.signin = async (req, res) => {
     });
   }
 };
+
+exports.signout = (req, res) => {
+  res.clearCookie('token');
+  res.json({
+    message: 'Signout success',
+  });
+};
+
+exports.requireSignin = expressJwt({
+  secret: process.env.JWT_SECRET,
+  algorithms: ['HS256'],
+});
