@@ -1,5 +1,5 @@
 import { useState } from 'react';
-
+import { signup } from '../../actions/auth';
 const SignupComponent = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -15,19 +15,67 @@ const SignupComponent = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Form submitted');
-    console.table({ name, email, password, error, success, loading, showForm });
+    //console.table({ name, email, password, error, success, loading, showForm });
+    setFormData({ ...formData, loading: true, error: false });
+    const user = { name, email, password };
+
+    signup(user).then((data) => {
+      if (data.error) {
+        setFormData({
+          ...formData,
+          error: data.error,
+          loading: false,
+        });
+      } else {
+        setFormData({
+          ...formData,
+          name: '',
+          email: '',
+          password: '',
+          error: '',
+          success: data.message,
+          loading: false,
+        });
+
+        // Clear success message after 3 seconds
+        setTimeout(() => {
+          setFormData((prevState) => ({
+            ...prevState,
+            success: '',
+          }));
+        }, 3000);
+      }
+    });
   };
 
   const handleChange = (name) => (e) => {
-    setFormData({ ...formData, [name]: e.target.value });
+    setFormData({
+      ...formData,
+      [name]: e.target.value,
+      error: false,
+      success: '',
+    });
   };
+
+  const showLoading = () =>
+    loading ? (
+      <div className='text-center my-2'>
+        <div className='spinner-border text-primary' role='status'>
+          <span className='visually-hidden'>Loading...</span>
+        </div>
+      </div>
+    ) : (
+      ''
+    );
+  const showError = () =>
+    error ? <div className='alert alert-danger'>{error}</div> : '';
+  const showSuccess = () =>
+    success ? <div className='alert alert-success'>{success}</div> : '';
 
   const signupForm = () => {
     return (
       <form onSubmit={handleSubmit}>
         <div className='form-group'>
-          <label>SignUp Form</label>
           <input
             value={name}
             onChange={handleChange('name')}
@@ -59,7 +107,14 @@ const SignupComponent = () => {
       </form>
     );
   };
-  return <>{signupForm()}</>;
+  return (
+    <>
+      {showLoading()}
+      {showError()}
+      {showSuccess()}
+      {showForm && signupForm()}
+    </>
+  );
 };
 
 export default SignupComponent;

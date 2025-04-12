@@ -19,6 +19,11 @@ mongoose
   .then(() => console.log('DB connected successfully'))
   .catch((err) => console.log('DB connection error:', err));
 
+// CORS middleware fix?
+if (process.env.NODE_ENV === 'development') {
+  app.use(cors({ origin: `${process.env.CLIENT_URL}` }));
+}
+
 //middleware
 app.use(morgan('dev'));
 app.use(bodyParser.json());
@@ -27,11 +32,6 @@ app.use(cookieParser());
 //routes middleware
 app.use('/api', blogRoutes);
 app.use('/api', authRoutes);
-
-//cors
-if (process.env.NODE_ENV === 'development') {
-  app.use(cors({ origin: `${process.env.CLIENT_URL}` }));
-}
 
 //routes
 app.get('/api', (req, res) => {
