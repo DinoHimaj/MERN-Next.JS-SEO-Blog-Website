@@ -1,4 +1,5 @@
 import fetch from 'isomorphic-fetch';
+import cookie from 'js-cookie';
 import { API } from '../config';
 
 export const signup = async (user) => {
@@ -50,5 +51,86 @@ export const signin = async (user) => {
     return {
       error: 'An error occurred during signin. Please try again.',
     };
+  }
+};
+
+// Helper function for browser check
+const isBrowser = () => typeof window !== 'undefined';
+
+//set cookie
+export const setCookie = (key, value) => {
+  if (!isBrowser()) return;
+
+  try {
+    cookie.set(key, value, {
+      expires: 1, // 1 day
+      path: '/',
+      //secure: process.env.NODE_ENV === 'production', // Secure in production
+      sameSite: 'strict',
+    });
+  } catch (err) {
+    console.error('Error setting cookie:', err);
+  }
+};
+
+//remove cookie
+export const removeCookie = (key) => {
+  if (!isBrowser()) return;
+
+  try {
+    cookie.remove(key, {
+      path: '/',
+      //secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+    });
+  } catch (err) {
+    console.error('Error removing cookie:', err);
+  }
+};
+
+//get cookie
+export const getCookie = (key) => {
+  if (!isBrowser()) return null;
+
+  try {
+    return cookie.get(key) || null;
+  } catch (err) {
+    console.error('Error getting cookie:', err);
+    return null;
+  }
+};
+
+//local storage
+export const setLocalStorage = (key, value) => {
+  if (isBrowser()) {
+    localStorage.setItem(key, JSON.stringify(value));
+  }
+};
+
+export const removeLocalStorage = (key) => {
+  if (isBrowser()) {
+    localStorage.removeItem(key);
+  }
+};
+
+//authenticate user by passing data to cookie and localstorage
+export const authenticate = (data, next) => {
+  setCookie('token', data.token);
+  setLocalStorage('user', data.user);
+  next();
+};
+
+export const isAuth = () => {
+  if (!isBrowser()) return false;
+
+  if (isBrowser) {
+    const cookieChecked = getCookie('token');
+    if (cookieChecked) {
+      if (localStorage.getItem('user')) {
+        return JSON.parse(localStorage.getItem('user'));
+      } else {
+        return false;
+      }
+    }
   }
 };
