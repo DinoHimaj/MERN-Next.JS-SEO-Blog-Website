@@ -75,12 +75,12 @@ const SignupComponent = () => {
   const signupForm = () => {
     return (
       <form onSubmit={handleSubmit}>
-        <div className='form-group'>
+        <div className='form-group mb-3'>
           <input
             value={name}
             onChange={handleChange('name')}
             type='text'
-            className='form-control'
+            className='form-control mb-3'
             placeholder='Enter Name'
           />
 
@@ -88,7 +88,7 @@ const SignupComponent = () => {
             onChange={handleChange('email')}
             value={email}
             type='email'
-            className='form-control'
+            className='form-control mb-3'
             placeholder='Enter Email'
           />
 
@@ -96,14 +96,16 @@ const SignupComponent = () => {
             onChange={handleChange('password')}
             value={password}
             type='password'
-            className='form-control'
+            className='form-control mb-3'
             placeholder='Enter Password'
           />
         </div>
 
-        <button type='submit' className='btn btn-primary'>
-          Sign Up
-        </button>
+        <div className='mb-3'>
+          <button type='submit' className='btn btn-primary'>
+            Sign Up
+          </button>
+        </div>
       </form>
     );
   };
