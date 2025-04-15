@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { APP_NAME } from '../config';
+import Router from 'next/router';
+import { signout, isAuth } from '../actions/auth';
 import {
   Collapse,
   Navbar,
@@ -23,16 +25,32 @@ const Header = () => {
       <NavbarToggler onClick={toggle} />
       <Collapse isOpen={isOpen} navbar>
         <Nav className='ms-auto' navbar>
-          <NavItem>
-            <Link href='/signin' className='nav-link'>
-              Sign In
-            </Link>
-          </NavItem>
-          <NavItem>
-            <Link href='/signup' className='nav-link'>
-              Signup
-            </Link>
-          </NavItem>
+          {!isAuth() && (
+            <>
+              <NavItem>
+                <Link href='/signin' className='nav-link'>
+                  Sign In
+                </Link>
+              </NavItem>
+              <NavItem>
+                <Link href='/signup' className='nav-link'>
+                  Signup
+                </Link>
+              </NavItem>
+            </>
+          )}
+
+          {isAuth() && (
+            <NavItem>
+              <NavLink
+                style={{ cursor: 'pointer' }}
+                onClick={() => signout(() => Router.replace('/signin'))}
+                className='nav-link'
+              >
+                Signout
+              </NavLink>
+            </NavItem>
+          )}
         </Nav>
       </Collapse>
     </Navbar>

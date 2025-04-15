@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { signup } from '../../actions/auth';
+import { useState, useEffect } from 'react';
+import { signup, isAuth } from '../../actions/auth';
+import Router from 'next/router';
 const SignupComponent = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -13,9 +14,14 @@ const SignupComponent = () => {
 
   const { name, email, password, error, success, loading, showForm } = formData;
 
+  useEffect(() => {
+    if (isAuth()) {
+      Router.push('/');
+    }
+  }, []);
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    //console.table({ name, email, password, error, success, loading, showForm });
     setFormData({ ...formData, loading: true, error: false });
     const user = { name, email, password };
 

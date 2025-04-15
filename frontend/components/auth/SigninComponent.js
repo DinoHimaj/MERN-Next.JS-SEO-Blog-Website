@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { signin, authenticate } from '../../actions/auth';
+import { useState, useEffect } from 'react';
+import { signin, authenticate, isAuth } from '../../actions/auth';
 
 import Router from 'next/router';
 
@@ -14,6 +14,13 @@ const SigninComponent = () => {
   });
 
   const { email, password, error, success, loading, showForm } = formData;
+
+  // Redirect to home page if user is already authenticated
+  useEffect(() => {
+    if (isAuth()) {
+      Router.push('/');
+    }
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();

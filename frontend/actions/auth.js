@@ -1,6 +1,7 @@
 import fetch from 'isomorphic-fetch';
 import cookie from 'js-cookie';
 import { API } from '../config';
+import React from 'react';
 
 export const signup = async (user) => {
   try {
@@ -52,6 +53,30 @@ export const signin = async (user) => {
       error: 'An error occurred during signin. Please try again.',
     };
   }
+};
+
+export const signout = async (next) => {
+  // First remove client-side auth data
+  if (isBrowser()) {
+    removeCookie('token');
+    removeLocalStorage('user');
+  }
+
+  // Then call the API
+  try {
+    const response = await fetch(`${API}/signout`, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
+    });
+    console.log('signout success');
+  } catch (err) {
+    console.log('signout error', err);
+  }
+
+  // Finally execute the callback
+  if (next) next();
 };
 
 // Helper function for browser check
@@ -121,16 +146,11 @@ export const authenticate = (data, next) => {
 };
 
 export const isAuth = () => {
-  if (!isBrowser()) return false;
-
-  if (isBrowser) {
+  if (isBrowser()) {
     const cookieChecked = getCookie('token');
     if (cookieChecked) {
-      if (localStorage.getItem('user')) {
-        return JSON.parse(localStorage.getItem('user'));
-      } else {
-        return false;
-      }
+      return JSON.parse(localStorage.getItem('user'));
     }
   }
+  return false;
 };
