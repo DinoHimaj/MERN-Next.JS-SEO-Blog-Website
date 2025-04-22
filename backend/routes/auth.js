@@ -22,10 +22,12 @@ router.post('/signin', userSigninValidator, runValidation, signin); // Login use
 router.get('/signout', signout); // Logout user
 //test
 
-router.get('/secret', requireSignin, (req, res) => {
-  res.json({
-    message: 'You have access to secret data',
-  });
-});
+// router.get('/secret', requireSignin, (req, res) => {
+//   console.log('req.user content:', req.auth);
+//   res.json({
+//     message: req.auth,
+//     message2: 'You have access to secret data',
+//   });
+// });
 
 module.exports = router;

@@ -54,9 +54,13 @@ exports.signin = async (req, res) => {
     }
 
     //create jwt token
-    const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: '1d',
-    });
+    const token = jwt.sign(
+      { _id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: '1d',
+      }
+    );
 
     //put token in cookie
     res.cookie('token', token, { expiresIn: '1d' });
@@ -85,3 +89,51 @@ exports.requireSignin = expressJwt({
   secret: process.env.JWT_SECRET,
   algorithms: ['HS256'],
 });
+
+exports.authMiddleware = async (req, res, next) => {
+  try {
+    const authUserId = req.auth._id;
+    const user = await User.findById(authUserId);
+
+    if (!user) {
+      return res.status(400).json({
+        error: 'User not found',
+      });
+    }
+
+    req.profile = user;
+    next();
+  } catch (err) {
+    return res.status(400).json({
+      error: 'User fetch error',
+      details: err.message,
+    });
+  }
+};
+
+exports.adminMiddleware = async (req, res, next) => {
+  try {
+    const adminUserId = req.auth._id;
+    const user = await User.findById(adminUserId);
+
+    if (!user) {
+      return res.status(400).json({
+        error: 'User not found',
+      });
+    }
+
+    if (user.role !== 1) {
+      return res.status(400).json({
+        error: 'Admin resource. Access denied',
+      });
+    }
+
+    req.profile = user;
+    next();
+  } catch (err) {
+    return res.status(400).json({
+      error: 'Admin verification error',
+      details: err.message,
+    });
+  }
+};

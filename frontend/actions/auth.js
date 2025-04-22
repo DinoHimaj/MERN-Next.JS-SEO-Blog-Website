@@ -56,13 +56,11 @@ export const signin = async (user) => {
 };
 
 export const signout = async (next) => {
-  // First remove client-side auth data
   if (isBrowser()) {
     removeCookie('token');
     removeLocalStorage('user');
   }
 
-  // Then call the API
   try {
     const response = await fetch(`${API}/signout`, {
       method: 'GET',
@@ -75,7 +73,6 @@ export const signout = async (next) => {
     console.log('signout error', err);
   }
 
-  // Finally execute the callback
   if (next) next();
 };
 

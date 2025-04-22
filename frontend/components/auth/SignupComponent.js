@@ -14,6 +14,7 @@ const SignupComponent = () => {
 
   const { name, email, password, error, success, loading, showForm } = formData;
 
+  // Redirect to home page if user is already authenticated
   useEffect(() => {
     if (isAuth()) {
       Router.push('/');
