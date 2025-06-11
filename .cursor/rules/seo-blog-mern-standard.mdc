@@ -1,0 +1,117 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# SEO Blog Project - Cursor IDE Rules
+
+## MongoDB/Mongoose Best Practices
+
+### CRITICAL: No Callback Usage with Mongoose
+- NEVER use callback syntax with Mongoose operations (save, find, findOne, etc.)
+- Mongoose v6+ removed callback support - always use async/await or promises
+- Example of FORBIDDEN pattern: `model.save((err, data) => {})`
+- Example of REQUIRED pattern: `await model.save()` or `model.save().then().catch()`
+
+### Database Operations Rules
+- All controller functions that interact with database MUST be declared as `async`
+- All Mongoose operations MUST use `await` keyword
+- Wrap all database operations in try/catch blocks for proper error handling
+- Always handle specific MongoDB error codes (e.g., 11000 for duplicate key)
+
+### Code Pattern Examples:
+
+#### ❌ FORBIDDEN - Callback Style:
+```javascript
+exports.create = (req, res) => {
+  model.save((err, data) => {
+    if (err) return res.status(400).json({ error: err });
+    res.json(data);
+  });
+};
+```
+
+#### ✅ REQUIRED - Async/Await Style:
+```javascript
+exports.create = async (req, res) => {
+  try {
+    const data = await model.save();
+    res.json(data);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+```
+
+## General Node.js/Express Best Practices
+
+### Error Handling
+- Always use try/catch blocks in async functions
+- Return meaningful error messages to client
+- Log errors to console for debugging
+- Handle specific error types (validation, duplicate key, etc.)
+
+### Response Patterns
+- Use appropriate HTTP status codes
+- Return consistent JSON response format
+- Include meaningful error messages
+- For creation operations, use status 201
+
+### Authentication & Authorization
+- All protected routes must use requireSignin middleware
+- Admin routes must use both requireSignin and adminMiddleware
+- Never expose sensitive data (passwords, internal IDs) in responses
+
+### Validation
+- Always validate input data before processing
+- Use express-validator for input validation
+- Check for required fields
+- Validate data types and formats
+
+## Code Quality Standards
+
+### Modern JavaScript
+- Use const/let instead of var
+- Use arrow functions for short functions
+- Use template literals for string interpolation
+- Use destructuring for object properties
+
+### Mongoose Specific
+- Use Schema validation whenever possible
+- Create indexes for frequently queried fields
+- Use lean() for read-only operations to improve performance
+- Always use exec() for query operations
+
+### Security
+- Never trust user input
+- Sanitize all inputs
+- Use parameterized queries (Mongoose handles this)
+- Validate file uploads and limit file sizes
+- Use HTTPS in production
+
+## File Structure Rules
+- Controllers should only handle request/response logic
+- Business logic should be in separate service files
+- Models should contain only schema definitions and instance methods
+- Routes should only define endpoints and middleware
+
+## Specific Reminders for This Project
+- All category operations require admin privileges
+- User authentication uses JWT tokens
+- Slugs should be generated using slugify with lowercase and strict options
+- Always check for duplicate entries before creating new records
+
+## When in doubt:
+1. Prefer async/await over callbacks or plain promises
+2. Always handle errors gracefully
+3. Use middleware for cross-cutting concerns (auth, validation)
+4. Keep controllers thin and focused
+5. Write self-documenting code with clear variable names
+
+## Emergency Patterns to Avoid:
+- model.save(callback) ❌
+- Model.find(query, callback) ❌
+- Any Mongoose method with callback as last parameter ❌
+- Mixing callback and promise patterns ❌
+
+- Not handling errors in async functions ❌
