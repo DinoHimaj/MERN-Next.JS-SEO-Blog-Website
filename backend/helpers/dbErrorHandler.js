@@ -16,25 +16,42 @@ class AppError extends Error {
 }
 
 /**
- * Get unique error field name from MongoDB duplicate key error
+ * Get unique error field name and value from MongoDB duplicate key error
  */
 const getUniqueFieldName = (error) => {
   try {
     // Handle different MongoDB error message formats
-    if (error.keyPattern) {
+    if (error.keyPattern && error.keyValue) {
       const fieldName = Object.keys(error.keyPattern)[0];
-      return fieldName.charAt(0).toUpperCase() + fieldName.slice(1);
+      const fieldValue = error.keyValue[fieldName];
+
+      // Create more descriptive message based on field type
+      switch (fieldName.toLowerCase()) {
+        case 'name':
+          return `"${fieldValue}" category already exists`;
+        case 'slug':
+          return `Category with slug "${fieldValue}" already exists`;
+        case 'email':
+          return `Email "${fieldValue}" is already registered`;
+        case 'username':
+          return `Username "${fieldValue}" is already taken`;
+        default:
+          return `${
+            fieldName.charAt(0).toUpperCase() + fieldName.slice(1)
+          } "${fieldValue}" already exists`;
+      }
     }
 
     // Fallback to string parsing for older MongoDB versions
     const match = error.message.match(/index: (.+?)_/);
     if (match && match[1]) {
-      return match[1].charAt(0).toUpperCase() + match[1].slice(1);
+      const fieldName = match[1].charAt(0).toUpperCase() + match[1].slice(1);
+      return `${fieldName} already exists`;
     }
 
-    return 'Field';
+    return 'Field already exists';
   } catch (ex) {
-    return 'Field';
+    return 'Duplicate value exists';
   }
 };
 
@@ -45,8 +62,8 @@ const handleMongoError = (error) => {
   switch (error.code) {
     case 11000:
     case 11001:
-      const fieldName = getUniqueFieldName(error);
-      return new AppError(`${fieldName} already exists`, 400);
+      const message = getUniqueFieldName(error);
+      return new AppError(message, 400);
 
     case 11600:
       return new AppError('Duplicate value error', 400);
