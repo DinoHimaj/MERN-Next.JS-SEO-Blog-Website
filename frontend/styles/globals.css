@@ -1,16 +1,241 @@
-/* NProgress styles */
+/* Enhanced global styles with emerald green health theme */
+:root {
+  --primary-color: #10b981; /* Emerald green */
+  --primary-dark: #047857; /* Darker emerald */
+  --primary-light: #6ee7b7; /* Light emerald */
+  --primary-lighter: #d1fae5; /* Very light emerald */
+  --secondary-color: #6c757d;
+  --success-color: #059669; /* Emerald success */
+  --danger-color: #dc3545;
+  --warning-color: #f59e0b; /* Amber warning */
+  --info-color: #06b6d4; /* Cyan info */
+  --light-color: #f8fafc;
+  --dark-color: #1f2937;
+  --body-bg: #ffffff;
+  --text-muted: #6b7280;
+  --border-color: #e5e7eb;
+  --box-shadow: 0 0.125rem 0.25rem rgba(16, 185, 129, 0.075);
+  --box-shadow-sm: 0 0.125rem 0.25rem rgba(16, 185, 129, 0.075);
+  --box-shadow-lg: 0 0.5rem 1rem rgba(16, 185, 129, 0.15);
+}
+
+/* Enhanced body styling */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  line-height: 1.6;
+  color: var(--dark-color);
+  background-color: var(--body-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Enhanced container spacing */
+.container,
+.container-fluid {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+/* Enhanced card styling */
+.card {
+  border: none;
+  box-shadow: var(--box-shadow);
+  border-radius: 0.75rem;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--box-shadow-lg);
+}
+
+/* Enhanced form styling */
+.form-control {
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  padding: 0.75rem 1rem;
+}
+
+.form-control:focus {
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.25) !important;
+}
+
+/* Enhanced button styling - OVERRIDE BOOTSTRAP */
+.btn {
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+/* Force emerald green for primary buttons */
+.btn-primary,
+.btn-primary:not(:disabled):not(.disabled),
+.btn-primary:not(:disabled):not(.disabled):active,
+.btn-primary:not(:disabled):not(.disabled).active {
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  color: white !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:not(:disabled):not(.disabled):active:hover,
+.btn-primary:not(:disabled):not(.disabled).active:hover {
+  background-color: var(--primary-dark) !important;
+  border-color: var(--primary-dark) !important;
+  color: white !important;
+}
+
+.btn-primary:focus,
+.btn-primary.focus {
+  box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.5) !important;
+}
+
+/* Force emerald green for outline buttons */
+.btn-outline-primary,
+.btn-outline-primary:not(:disabled):not(.disabled) {
+  color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  background-color: transparent !important;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus,
+.btn-outline-primary:not(:disabled):not(.disabled):active,
+.btn-outline-primary:not(:disabled):not(.disabled).active {
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  color: white !important;
+}
+
+.btn-outline-primary:focus,
+.btn-outline-primary.focus {
+  box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.5) !important;
+}
+
+/* Enhanced alert styling */
+.alert {
+  border-radius: 0.5rem;
+  border: none;
+  padding: 1rem 1.25rem;
+}
+
+.alert-success {
+  background-color: var(--primary-lighter) !important;
+  color: var(--primary-dark) !important;
+  border-color: var(--primary-light) !important;
+}
+
+/* Enhanced navigation */
+.navbar {
+  box-shadow: var(--box-shadow-sm);
+  padding: 1rem 0;
+}
+
+.navbar-brand {
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--primary-color) !important;
+}
+
+.nav-link {
+  font-weight: 500;
+  transition: color 0.2s ease-in-out;
+}
+
+.nav-link:hover {
+  color: var(--primary-color) !important;
+}
+
+/* Enhanced footer */
+.footer {
+  background-color: var(--light-color);
+  padding: 2rem 0;
+  margin-top: 3rem;
+  border-top: 1px solid var(--border-color);
+}
+
+/* Enhanced page headers */
+.page-header {
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--primary-dark)
+  ) !important;
+  color: white;
+  padding: 3rem 0;
+  margin-bottom: 2rem;
+  border-radius: 0.75rem;
+  box-shadow: var(--box-shadow);
+}
+
+.page-header h1,
+.page-header h2 {
+  margin: 0;
+  font-weight: 300;
+}
+
+/* Enhanced content sections */
+.content-section {
+  padding: 2rem 0;
+}
+
+/* Enhanced list styling */
+.list-group-item {
+  border: none;
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.list-group-item:hover {
+  background-color: var(--primary-lighter);
+}
+
+/* Enhanced spinner/loading */
+.spinner-border {
+  width: 2rem;
+  height: 2rem;
+}
+
+.spinner-border.text-primary {
+  color: var(--primary-color) !important;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  .page-header {
+    padding: 2rem 0;
+  }
+
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* NProgress styles (enhanced with emerald green) */
 #nprogress {
   pointer-events: none;
 }
 
 #nprogress .bar {
-  background: #29d;
+  background: var(--primary-color) !important;
   position: fixed;
   z-index: 1031;
   top: 0;
   left: 0;
   width: 100%;
-  height: 2px;
+  height: 3px;
+  box-shadow: 0 0 10px var(--primary-color);
 }
 
 #nprogress .peg {
@@ -19,7 +244,7 @@
   right: 0px;
   width: 100px;
   height: 100%;
-  box-shadow: 0 0 10px #29d, 0 0 5px #29d;
+  box-shadow: 0 0 10px var(--primary-color), 0 0 5px var(--primary-color);
   opacity: 1;
   transform: rotate(3deg) translate(0px, -4px);
 }
@@ -33,12 +258,12 @@
 }
 
 #nprogress .spinner-icon {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   box-sizing: border-box;
-  border: solid 2px transparent;
-  border-top-color: #29d;
-  border-left-color: #29d;
+  border: solid 3px transparent;
+  border-top-color: var(--primary-color) !important;
+  border-left-color: var(--primary-color) !important;
   border-radius: 50%;
   animation: nprogress-spinner 400ms linear infinite;
 }
@@ -51,4 +276,89 @@
 .nprogress-custom-parent #nprogress .spinner,
 .nprogress-custom-parent #nprogress .bar {
   position: absolute;
+}
+
+@keyframes nprogress-spinner {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Utility classes */
+.text-gradient {
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--primary-dark)
+  ) !important;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Health-themed accent colors */
+.text-primary,
+.text-primary:hover,
+.text-primary:focus {
+  color: var(--primary-color) !important;
+}
+
+.bg-primary {
+  background-color: var(--primary-color) !important;
+}
+
+.border-primary {
+  border-color: var(--primary-color) !important;
+}
+
+/* Additional health-themed elements */
+.health-accent {
+  color: var(--primary-color) !important;
+}
+
+.health-bg-light {
+  background-color: var(--primary-lighter) !important;
+}
+
+.health-border {
+  border-left: 4px solid var(--primary-color) !important;
+}
+
+/* Links styling */
+a {
+  color: var(--primary-color) !important;
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--primary-dark) !important;
+  text-decoration: underline;
+}
+
+/* Make sure all Bootstrap primary components use emerald green */
+.bg-primary,
+.badge-primary,
+.alert-primary,
+.border-primary,
+.text-primary {
+  --bs-primary: var(--primary-color) !important;
+  --bs-primary-rgb: 16, 185, 129 !important;
 }
