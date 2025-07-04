@@ -1,27 +1,27 @@
-import Layout from '../../components/Layout';
+import Layout from '../../../components/Layout';
 import Link from 'next/link';
-import Admin from '../../components/auth/Admin';
+import Admin from '../../../components/auth/Admin';
 
-const AdminIndex = () => {
+const CategoryTag = () => {
   return (
     <Layout>
       <Admin>
         <div className='container-fluid'>
           <div className='row'>
             <div className='col-md-12 pt-5 pb-5'>
-              <h2>Admin Dashboard</h2>
+              <h2>Manage Categories and Tags</h2>
             </div>
             <div className='col-md-4'>
+              <h4>Categories</h4>
               <ul class='list-group'>
                 <li className='list-group-item'>
-                  <Link href='/admin/crud/category-tag'>
-                    {' '}
-                    <a>Create Category </a>
-                  </Link>
+                  <Link href='/crud/category-tag'> </Link>
                 </li>
               </ul>
             </div>
-            <div className='col-md-8'>right</div>
+            <div className='col-md-8'>
+              <p>tags here </p>
+            </div>
           </div>
         </div>
       </Admin>
@@ -29,4 +29,4 @@ const AdminIndex = () => {
   );
 };
 
-export default AdminIndex;
+export default CategoryTag;
