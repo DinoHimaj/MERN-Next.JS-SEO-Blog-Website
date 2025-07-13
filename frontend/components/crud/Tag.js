@@ -1,23 +1,17 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import Link from 'next/link';
-import Router from 'next/router';
-import { isAuth, getCookie } from '../../actions/auth';
-import {
-  createCategory,
-  getCategories,
-  deleteCategory,
-} from '../../actions/category';
+import React, { useState, useEffect } from 'react';
+import { createTag, getTags, deleteTag } from '../../actions/tag';
+import { getCookie } from '../../actions/auth';
 
-const Category = () => {
+const Tag = () => {
   const [values, setValues] = useState({
     name: '',
     error: false,
     success: false,
-    categories: [],
+    tags: [],
     removed: false,
   });
 
-  const { name, error, success, categories, removed } = values;
+  const { name, error, success, tags, removed } = values;
   const token = getCookie('token');
 
   // Smart timer with user interaction detection
@@ -61,43 +55,41 @@ const Category = () => {
   useSmartTimer('removed', removed);
 
   useEffect(() => {
-    loadCategories();
+    loadTags();
   }, []);
 
-  const loadCategories = () => {
-    getCategories().then((data) => {
+  const loadTags = () => {
+    getTags().then((data) => {
       if (data.error) {
         setValues((prev) => ({ ...prev, error: data.error }));
       } else {
-        setValues((prev) => ({ ...prev, categories: data }));
+        setValues((prev) => ({ ...prev, tags: data }));
       }
     });
   };
 
-  const showCategories = () => {
-    return categories.map((c, i) => (
+  const showTags = () => {
+    return tags.map((t, i) => (
       <button
-        onDoubleClick={() => deleteConfirm(c.slug)}
+        onDoubleClick={() => deleteConfirm(t.slug)}
         title='Double click to delete'
         key={i}
         className='btn btn-outline-primary mr-1 ml-1'
       >
-        {c.name}
+        {t.name}
       </button>
     ));
   };
 
   const deleteConfirm = (slug) => {
-    let answer = window.confirm(
-      'Are you sure you want to delete this category?'
-    );
+    let answer = window.confirm('Are you sure you want to delete this tag?');
     if (answer) {
-      deleteCategory(slug, token).then((data) => {
+      deleteTag(slug, token).then((data) => {
         if (data.error) {
           setValues((prev) => ({ ...prev, error: data.error, removed: false }));
         } else {
           setValues((prev) => ({ ...prev, removed: true, error: false }));
-          loadCategories();
+          loadTags();
         }
       });
     }
@@ -105,7 +97,7 @@ const Category = () => {
 
   const clickSubmit = (e) => {
     e.preventDefault();
-    createCategory(values, token).then((data) => {
+    createTag(values, token).then((data) => {
       if (data.error) {
         setValues((prev) => ({ ...prev, error: data.error, success: false }));
       } else {
@@ -114,7 +106,7 @@ const Category = () => {
           name: '',
           error: false,
           success: true,
-          categories: [...categories, data],
+          tags: [...tags, data],
         }));
       }
     });
@@ -134,7 +126,7 @@ const Category = () => {
     if (success) {
       return (
         <div className='alert alert-success fade show' role='alert'>
-          <strong>Success!</strong> Category created successfully
+          <strong>Success!</strong> Tag created successfully
         </div>
       );
     }
@@ -154,13 +146,13 @@ const Category = () => {
     if (removed) {
       return (
         <div className='alert alert-info fade show' role='alert'>
-          <strong>Deleted!</strong> Category deleted successfully
+          <strong>Deleted!</strong> Tag deleted successfully
         </div>
       );
     }
   };
 
-  const newCategoryForm = () => (
+  const newTagForm = () => (
     <form onSubmit={clickSubmit}>
       <div className='form-group'>
         <label className='text-muted'>Name</label>
@@ -173,7 +165,7 @@ const Category = () => {
         />
         <div className='mt-3'>
           <button type='submit' className='btn btn-success'>
-            Create Category
+            Create Tag
           </button>
         </div>
       </div>
@@ -182,15 +174,15 @@ const Category = () => {
 
   return (
     <React.Fragment>
-      <h2>Create a new category</h2>
+      <h2>Create a new tag</h2>
       {showError()}
       {showSuccess()}
       {showRemoved()}
-      {newCategoryForm()}
-      <h2>All categories</h2>
-      {showCategories()}
+      {newTagForm()}
+      <h2>All tags</h2>
+      {showTags()}
     </React.Fragment>
   );
 };
 
-export default Category;
+export default Tag;
