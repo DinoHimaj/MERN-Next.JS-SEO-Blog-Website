@@ -1,11 +1,8 @@
 const express = require('express');
 const router = express.Router();
+const { create } = require('../controllers/blog');
+const { requireSignin, adminMiddleware } = require('../controllers/auth');
 
-router.get('/', (req, res) => {
-  res.json({
-    data: 'hello from routes folder  blog.js file',
-    time: new Date().toLocaleString(),
-  });
-});
+router.post('/blog', requireSignin, adminMiddleware, create);
 
 module.exports = router;

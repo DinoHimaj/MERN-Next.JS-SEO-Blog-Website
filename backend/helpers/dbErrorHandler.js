@@ -30,7 +30,7 @@ const getUniqueFieldName = (error) => {
         case 'name':
           return `"${fieldValue}" category already exists`;
         case 'slug':
-          return `Category with slug "${fieldValue}" already exists`;
+          return `Slug "${fieldValue}" already exists`;
         case 'email':
           return `Email "${fieldValue}" is already registered`;
         case 'username':
