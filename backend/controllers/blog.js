@@ -8,6 +8,7 @@ const _ = require('lodash');
 const { errorHandler } = require('../helpers/dbErrorHandler');
 const fs = require('fs');
 const { firstValues } = require('formidable/src/helpers/firstValues.js');
+const { smartTrim } = require('../helpers/blog');
 
 exports.create = async (req, res) => {
   let form = new formidable.IncomingForm();
@@ -81,9 +82,11 @@ exports.create = async (req, res) => {
       let blog = new Blog();
       blog.title = title;
       blog.body = body;
+      const cleanBody = stripHtml(body).result;
+      blog.excerpt = smartTrim(cleanBody, 320, ' ', '...');
       blog.slug = `${slugify(title).toLowerCase()}`;
       blog.mtitle = `${title} | ${process.env.APP_NAME}`;
-      blog.mdesc = stripHtml(body.substring(0, 160)).result;
+      blog.mdesc = cleanBody.substring(0, 160);
       blog.postedBy = req.auth._id;
 
       // Add categories and tags as ObjectIds
