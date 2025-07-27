@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import NProgress from 'nprogress';
 import { APP_NAME } from '../config';
@@ -20,7 +20,33 @@ Router.onRouteChangeError = (url) => NProgress.done();
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [auth, setAuth] = useState(null);
+  const [mounted, setMounted] = useState(false);
+
+  // Prevent hydration mismatches by only showing auth-dependent content after mounting
+  useEffect(() => {
+    setMounted(true);
+    setAuth(isAuth());
+  }, []);
+
   const toggle = () => setIsOpen(!isOpen);
+
+  // Don't render auth-dependent content until component is mounted
+  if (!mounted) {
+    return (
+      <Navbar color='light' light expand='md' container>
+        <Link href='/' className='navbar-brand font-weight-bold'>
+          {APP_NAME}
+        </Link>
+        <NavbarToggler onClick={toggle} />
+        <Collapse isOpen={isOpen} navbar>
+          <Nav className='ms-auto' navbar>
+            {/* Show loading state or minimal content */}
+          </Nav>
+        </Collapse>
+      </Navbar>
+    );
+  }
 
   return (
     <Navbar color='light' light expand='md' container>
@@ -30,45 +56,48 @@ const Header = () => {
       <NavbarToggler onClick={toggle} />
       <Collapse isOpen={isOpen} navbar>
         <Nav className='ms-auto' navbar>
-          {!isAuth() && (
+          {!auth && (
             <>
               <NavItem>
-                <Link href='/signin' className='nav-link'>
-                  Sign In
+                <Link href='/signin' passHref legacyBehavior>
+                  <NavLink>Sign In</NavLink>
                 </Link>
               </NavItem>
               <NavItem>
-                <Link href='/signup' className='nav-link'>
-                  Signup
+                <Link href='/signup' passHref legacyBehavior>
+                  <NavLink>Signup</NavLink>
                 </Link>
               </NavItem>
             </>
           )}
 
-          {isAuth() && (
+          {auth && (
             <NavItem>
               <NavLink
+                href='#'
+                onClick={(e) => {
+                  e.preventDefault();
+                  signout(() => Router.replace('/signin'));
+                }}
                 style={{ cursor: 'pointer' }}
-                onClick={() => signout(() => Router.replace('/signin'))}
-                className='nav-link'
               >
                 Signout
               </NavLink>
             </NavItem>
           )}
 
-          {isAuth() && isAuth().role === 0 && (
+          {auth && auth.role === 0 && (
             <NavItem>
-              <Link href='/user' className='nav-link'>
-                <NavLink>{isAuth().name}'s Dashboard </NavLink>
+              <Link href='/user' passHref legacyBehavior>
+                <NavLink>{auth.name}'s Dashboard</NavLink>
               </Link>
             </NavItem>
           )}
 
-          {isAuth() && isAuth().role === 1 && (
+          {auth && auth.role === 1 && (
             <NavItem>
-              <Link href='/admin' className='nav-link'>
-                <NavLink>{isAuth().name}'s Dashboard</NavLink>
+              <Link href='/admin' passHref legacyBehavior>
+                <NavLink>{auth.name}'s Dashboard</NavLink>
               </Link>
             </NavItem>
           )}
