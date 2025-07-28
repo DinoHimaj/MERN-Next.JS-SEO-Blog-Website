@@ -14,6 +14,8 @@ import 'react-quill/dist/quill.snow.css';
 
 const BlogCreate = ({ router }) => {
   const [body, setBody] = useState('');
+  const [hasMounted, setHasMounted] = useState(false);
+
   const [values, setValues] = useState({
     error: '',
     sizeError: '',
@@ -26,17 +28,42 @@ const BlogCreate = ({ router }) => {
   const { error, sizeError, success, formData, title, hidePublishButton } =
     values;
 
+  useEffect(() => {
+    setHasMounted(true);
+
+    // Load from localStorage only after component mounts
+    if (typeof window !== 'undefined' && localStorage.getItem('blog')) {
+      try {
+        const savedContent = JSON.parse(localStorage.getItem('blog'));
+        setBody(savedContent);
+      } catch (err) {
+        console.error('Error loading from localStorage:', err);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    setValues({ ...values, formData: new FormData() });
+  }, [router]);
+
   const publishBlog = (e) => {
     e.preventDefault();
     console.log('publishBlog');
   };
 
   const handleChange = (name) => (e) => {
-    console.log(name, e.target.value);
+    const value = name === 'photo' ? e.target.files[0] : e.target.value;
+    formData.set(name, value);
+    setValues({ ...values, [name]: value, formData, error: '' });
   };
 
-  const handleBodyChange = (body) => (value) => {
-    console.log(body, value);
+  const handleBodyChange = (e) => {
+    setBody(e);
+    formData.set('body', e);
+
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('blog', JSON.stringify(e));
+    }
   };
 
   const createBlogForm = () => {
@@ -52,12 +79,24 @@ const BlogCreate = ({ router }) => {
           />
         </div>
         <div className='form-group'>
-          <ReactQuill
-            value={values.body}
-            onChange={handleBodyChange('body')}
-            placeholder='Write something...'
-            className='form-control'
-          />
+          {hasMounted && (
+            <ReactQuill
+              modules={BlogCreate.modules}
+              formats={BlogCreate.formats}
+              value={body}
+              onChange={handleBodyChange}
+              placeholder='Write something...'
+              className='form-control'
+            />
+          )}
+          {!hasMounted && (
+            <div
+              className='form-control'
+              style={{ minHeight: '200px', padding: '12px' }}
+            >
+              Loading editor...
+            </div>
+          )}
         </div>
 
         <div>
@@ -69,7 +108,44 @@ const BlogCreate = ({ router }) => {
     );
   };
 
-  return <div>{createBlogForm()}</div>;
+  return (
+    <div>
+      {createBlogForm()}
+      <hr />
+      {JSON.stringify(title)}
+      <hr />
+      {JSON.stringify(body)}
+    </div>
+  );
 };
+
+BlogCreate.modules = {
+  toolbar: [
+    [{ header: '1' }, { header: '2' }, { header: [3, 4, 5, 6] }, { font: [] }],
+    [{ size: [] }],
+    ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+    [{ list: 'ordered' }, { list: 'bullet' }],
+    ['link', 'image', 'video'],
+    ['clean'],
+    ['code-block'],
+  ],
+};
+
+BlogCreate.formats = [
+  'header',
+  'font',
+  'size',
+  'bold',
+  'italic',
+  'underline',
+  'strike',
+  'blockquote',
+  'list',
+  'bullet',
+  'link',
+  'image',
+  'video',
+  'code-block',
+];
 
 export default withRouter(BlogCreate);
