@@ -45,6 +45,9 @@ const BlogCreate = ({ router }) => {
   const [categories, setCategories] = useState([]);
   const [tags, setTags] = useState([]);
 
+  const [checkedCategories, setCheckedCategories] = useState([]);
+  const [checkedTags, setCheckedTags] = useState([]);
+
   const initCategories = async () => {
     try {
       const data = await getCategories();
@@ -96,10 +99,43 @@ const BlogCreate = ({ router }) => {
     }
   };
 
+  const handleCategoryToggle = (c) => {
+    setValues({ ...values, error: '' });
+
+    const clickedCategory = checkedCategories.indexOf(c);
+    const allCategories = [...checkedCategories];
+    if (clickedCategory === -1) {
+      allCategories.push(c);
+    } else {
+      allCategories.splice(clickedCategory, 1);
+    }
+    console.log(allCategories);
+    setCheckedCategories(allCategories);
+    formData.set('categories', allCategories);
+  };
+
+  const handleTagToggle = (t) => {
+    setValues({ ...values, error: '' });
+    const clickedTag = checkedTags.indexOf(t);
+    const allTags = [...checkedTags];
+    if (clickedTag === -1) {
+      allTags.push(t);
+    } else {
+      allTags.splice(clickedTag, 1);
+    }
+    console.log(allTags);
+    setCheckedTags(allTags);
+    formData.set('tags', allTags);
+  };
+
   const showCategories = () => {
     return categories.map((c) => (
       <li className='list-unstyled' key={c._id}>
-        <input type='checkbox' className='mr-2' />
+        <input
+          onChange={() => handleCategoryToggle(c._id)}
+          type='checkbox'
+          className='mr-2'
+        />
         <label className='form-check-label'>{c.name}</label>
       </li>
     ));
@@ -108,7 +144,11 @@ const BlogCreate = ({ router }) => {
   const showTags = () => {
     return tags.map((t) => (
       <li className='list-unstyled' key={t._id}>
-        <input type='checkbox' className='mr-2' />
+        <input
+          onChange={() => handleTagToggle(t._id)}
+          type='checkbox'
+          className='mr-2'
+        />
         <label className='form-check-label'>{t.name}</label>
       </li>
     ));
