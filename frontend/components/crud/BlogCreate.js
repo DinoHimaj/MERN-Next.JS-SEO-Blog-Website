@@ -42,8 +42,38 @@ const BlogCreate = ({ router }) => {
     }
   }, []);
 
+  const [categories, setCategories] = useState([]);
+  const [tags, setTags] = useState([]);
+
+  const initCategories = async () => {
+    try {
+      const data = await getCategories();
+      if (data) {
+        setCategories(data);
+      }
+    } catch (err) {
+      console.error('Error loading categories:', err);
+    }
+  };
+
+  const initTags = async () => {
+    try {
+      const data = await getTags();
+      if (data) {
+        setTags(data);
+      }
+    } catch (err) {
+      console.error('Error loading tags:', err);
+    }
+  };
+
   useEffect(() => {
-    setValues({ ...values, formData: new FormData() });
+    setValues((prevValues) => ({
+      ...prevValues,
+      formData: new FormData(),
+    }));
+    initCategories();
+    initTags();
   }, [router]);
 
   const publishBlog = (e) => {
@@ -64,6 +94,24 @@ const BlogCreate = ({ router }) => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('blog', JSON.stringify(e));
     }
+  };
+
+  const showCategories = () => {
+    return categories.map((c) => (
+      <li className='list-unstyled' key={c._id}>
+        <input type='checkbox' className='mr-2' />
+        <label className='form-check-label'>{c.name}</label>
+      </li>
+    ));
+  };
+
+  const showTags = () => {
+    return tags.map((t) => (
+      <li className='list-unstyled' key={t._id}>
+        <input type='checkbox' className='mr-2' />
+        <label className='form-check-label'>{t.name}</label>
+      </li>
+    ));
   };
 
   const createBlogForm = () => {
@@ -109,12 +157,30 @@ const BlogCreate = ({ router }) => {
   };
 
   return (
-    <div>
-      {createBlogForm()}
-      <hr />
-      {JSON.stringify(title)}
-      <hr />
-      {JSON.stringify(body)}
+    <div className='container-fluid'>
+      <div className='row'>
+        <div className='col-md-8'>
+          <h1>Create Blog</h1>
+          {createBlogForm()}
+        </div>
+
+        <div className='col-md-3'>
+          <div>
+            <h5>Categories</h5>
+            <hr />
+            <ul style={{ maxHeight: '200px', overflowY: 'scroll' }}>
+              {showCategories()}
+            </ul>
+          </div>
+          <div>
+            <h5>Tags</h5>
+            <hr />
+            <ul style={{ maxHeight: '200px', overflowY: 'scroll' }}>
+              {showTags()}
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
