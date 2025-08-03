@@ -121,3 +121,80 @@ exports.create = async (req, res) => {
     }
   });
 };
+
+// Fix the list function - remove callback syntax
+exports.list = async (req, res) => {
+  try {
+    const blogs = await Blog.find({})
+      .populate('categories', 'name slug')
+      .populate('tags', 'name slug')
+      .populate('postedBy', 'name')
+      .select(
+        '_id title slug excerpt categories tags postedBy createdAt updatedAt'
+      )
+      .limit(10)
+      .sort({ createdAt: -1 });
+
+    res.json(blogs);
+  } catch (error) {
+    console.error('Blog list error:', error);
+    const handledError = errorHandler(error);
+    return res.status(handledError.statusCode || 400).json({
+      error: handledError.message,
+    });
+  }
+};
+
+// Add these missing functions
+
+exports.listAllBlogsCategoriesTags = async (req, res) => {
+  try {
+    // TODO: Implement this function
+    res.json({ message: 'listAllBlogsCategoriesTags - Not implemented yet' });
+  } catch (error) {
+    console.error('listAllBlogsCategoriesTags error:', error);
+    const handledError = errorHandler(error);
+    return res.status(handledError.statusCode || 400).json({
+      error: handledError.message,
+    });
+  }
+};
+
+exports.read = async (req, res) => {
+  try {
+    // TODO: Implement this function
+    res.json({ message: 'read - Not implemented yet' });
+  } catch (error) {
+    console.error('Blog read error:', error);
+    const handledError = errorHandler(error);
+    return res.status(handledError.statusCode || 400).json({
+      error: handledError.message,
+    });
+  }
+};
+
+exports.remove = async (req, res) => {
+  try {
+    // TODO: Implement this function
+    res.json({ message: 'remove - Not implemented yet' });
+  } catch (error) {
+    console.error('Blog remove error:', error);
+    const handledError = errorHandler(error);
+    return res.status(handledError.statusCode || 400).json({
+      error: handledError.message,
+    });
+  }
+};
+
+exports.update = async (req, res) => {
+  try {
+    // TODO: Implement this function
+    res.json({ message: 'update - Not implemented yet' });
+  } catch (error) {
+    console.error('Blog update error:', error);
+    const handledError = errorHandler(error);
+    return res.status(handledError.statusCode || 400).json({
+      error: handledError.message,
+    });
+  }
+};
