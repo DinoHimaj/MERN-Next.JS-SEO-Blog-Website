@@ -11,12 +11,17 @@ export const createBlog = async (blog, token) => {
       },
       body: blog,
     });
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
+
     const data = await response.json();
+
+    if (!response.ok) {
+      // Return the error from backend instead of throwing
+      return { error: data.error || `HTTP error! status: ${response.status}` };
+    }
+
     return data;
   } catch (err) {
     console.error('Blog creation error:', err);
+    return { error: err.message || 'Network error occurred' };
   }
 };

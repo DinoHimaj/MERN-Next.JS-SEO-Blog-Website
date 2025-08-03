@@ -33,7 +33,7 @@ exports.create = async (req, res) => {
       });
     }
 
-    if (!body || body.length < 200) {
+    if (!body || body.length < 400) {
       return res.status(400).json({
         error: 'Content is too short',
       });
