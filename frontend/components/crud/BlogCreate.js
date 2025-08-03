@@ -10,6 +10,7 @@ import { createBlog } from '../../actions/blog';
 const ReactQuill = dynamic(() => import('react-quill'), {
   ssr: false,
 });
+import { QuillModules, QuillFormats } from '../../helpers/quill';
 import 'react-quill/dist/quill.snow.css';
 
 const BlogCreate = ({ router }) => {
@@ -316,11 +317,11 @@ const BlogCreate = ({ router }) => {
           {hasMounted && (
             <div>
               <ReactQuill
-                modules={BlogCreate.modules}
-                formats={BlogCreate.formats}
+                modules={QuillModules}
+                formats={QuillFormats}
                 value={body}
                 onChange={handleBodyChange}
-                placeholder='Write your blog content here... (minimum 200 characters)'
+                placeholder='Write something amazing...'
                 className={`form-control ${
                   validationErrors.body ? 'border-danger' : ''
                 }`}
@@ -425,34 +426,5 @@ const BlogCreate = ({ router }) => {
     </div>
   );
 };
-
-BlogCreate.modules = {
-  toolbar: [
-    [{ header: '1' }, { header: '2' }, { header: [3, 4, 5, 6] }, { font: [] }],
-    [{ size: [] }],
-    ['bold', 'italic', 'underline', 'strike', 'blockquote'],
-    [{ list: 'ordered' }, { list: 'bullet' }],
-    ['link', 'image', 'video'],
-    ['clean'],
-    ['code-block'],
-  ],
-};
-
-BlogCreate.formats = [
-  'header',
-  'font',
-  'size',
-  'bold',
-  'italic',
-  'underline',
-  'strike',
-  'blockquote',
-  'list',
-  'bullet',
-  'link',
-  'image',
-  'video',
-  'code-block',
-];
 
 export default withRouter(BlogCreate);

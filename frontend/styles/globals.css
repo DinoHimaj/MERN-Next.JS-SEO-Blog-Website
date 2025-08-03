@@ -362,3 +362,18 @@ a:hover {
   --bs-primary: var(--primary-color) !important;
   --bs-primary-rgb: 16, 185, 129 !important;
 }
+
+.ql-editor {
+  min-height: 300px;
+}
+
+/* More specific selector */
+.ql-container .ql-editor img {
+  max-width: 500px !important;
+  width: 100%;
+  height: auto;
+  display: block;
+  margin: 10px auto;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
