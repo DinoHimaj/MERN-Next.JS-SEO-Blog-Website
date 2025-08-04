@@ -122,7 +122,7 @@ exports.create = async (req, res) => {
   });
 };
 
-// Fix the list function - remove callback syntax
+//list all blogs
 exports.list = async (req, res) => {
   try {
     const blogs = await Blog.find({})
@@ -145,14 +145,35 @@ exports.list = async (req, res) => {
   }
 };
 
-// Add these missing functions
-
+//list all blogs with categories and tags
 exports.listAllBlogsCategoriesTags = async (req, res) => {
   try {
-    // TODO: Implement this function
-    res.json({ message: 'listAllBlogsCategoriesTags - Not implemented yet' });
+    let limit = req.body.limit ? parseInt(req.body.limit) : 10;
+    let skip = req.body.skip ? parseInt(req.body.skip) : 0;
+
+    const [blogs, categories, tags] = await Promise.all([
+      Blog.find({})
+        .populate('categories', 'name slug')
+        .populate('tags', 'name slug')
+        .populate('postedBy', 'name username profile')
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .skip(skip)
+        .select('_id title slug categories tags postedBy'),
+
+      Category.find({}),
+
+      Tag.find({}),
+    ]);
+
+    res.json({
+      blogs,
+      categories,
+      tags,
+      size: blogs.length,
+    });
   } catch (error) {
-    console.error('listAllBlogsCategoriesTags error:', error);
+    console.error('Blog list with categories and tags error:', error);
     const handledError = errorHandler(error);
     return res.status(handledError.statusCode || 400).json({
       error: handledError.message,
