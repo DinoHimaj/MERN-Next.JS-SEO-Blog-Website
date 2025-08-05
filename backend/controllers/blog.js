@@ -181,10 +181,25 @@ exports.listAllBlogsCategoriesTags = async (req, res) => {
   }
 };
 
+//read a blog
 exports.read = async (req, res) => {
   try {
-    // TODO: Implement this function
-    res.json({ message: 'read - Not implemented yet' });
+    const slug = req.params.slug;
+    const blog = await Blog.findOne({ slug })
+      .populate('categories', '_id name slug')
+      .populate('tags', '_id name slug')
+      .populate('postedBy', '_id name username profile')
+      .select(
+        '_id title slug mtitle mdesc categories tags postedBy createdAt updatedAt'
+      );
+
+    if (!blog) {
+      return res.status(404).json({
+        error: 'Blog not found',
+      });
+    }
+
+    res.json(blog);
   } catch (error) {
     console.error('Blog read error:', error);
     const handledError = errorHandler(error);
@@ -194,10 +209,28 @@ exports.read = async (req, res) => {
   }
 };
 
+//remove a blog
 exports.remove = async (req, res) => {
   try {
-    // TODO: Implement this function
-    res.json({ message: 'remove - Not implemented yet' });
+    const slug = req.params.slug.toLowerCase();
+
+    // Use findOneAndDelete (modern method) and check if blog exists
+    const blog = await Blog.findOneAndDelete({ slug });
+
+    if (!blog) {
+      return res.status(404).json({
+        error: 'Blog not found',
+      });
+    }
+
+    res.json({
+      message: 'Blog deleted successfully',
+      deletedBlog: {
+        _id: blog._id,
+        title: blog.title,
+        slug: blog.slug,
+      },
+    });
   } catch (error) {
     console.error('Blog remove error:', error);
     const handledError = errorHandler(error);
