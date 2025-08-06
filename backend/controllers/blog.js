@@ -214,7 +214,6 @@ exports.remove = async (req, res) => {
   try {
     const slug = req.params.slug.toLowerCase();
 
-    // Use findOneAndDelete (modern method) and check if blog exists
     const blog = await Blog.findOneAndDelete({ slug });
 
     if (!blog) {
@@ -241,14 +240,141 @@ exports.remove = async (req, res) => {
 };
 
 exports.update = async (req, res) => {
-  try {
-    // TODO: Implement this function
-    res.json({ message: 'update - Not implemented yet' });
-  } catch (error) {
-    console.error('Blog update error:', error);
-    const handledError = errorHandler(error);
-    return res.status(handledError.statusCode || 400).json({
-      error: handledError.message,
-    });
-  }
+  let form = new formidable.IncomingForm();
+  form.keepExtensions = true;
+
+  form.parse(req, async (err, fieldsMultiple, filesMultiple) => {
+    if (err) {
+      return res.status(400).json({
+        error: 'Form data could not be processed',
+      });
+    }
+
+    try {
+      // STEP 1: Extract slug and check if blog exists
+      const slug = req.params.slug.toLowerCase();
+      const existingBlog = await Blog.findOne({ slug });
+
+      if (!existingBlog) {
+        return res.status(404).json({
+          error: 'Blog not found',
+        });
+      }
+
+      // STEP 2: Process form data
+      const fields = firstValues(form, fieldsMultiple);
+      const files = firstValues(form, filesMultiple);
+
+      const { title, body, categories, tags } = fields;
+
+      // STEP 3: Validate provided data (only validate what's being updated)
+      if (title && (!title.length || title.length < 3)) {
+        return res.status(400).json({
+          error: 'Title must be at least 3 characters long',
+        });
+      }
+
+      if (body && body.length < 400) {
+        return res.status(400).json({
+          error: 'Content must be at least 400 characters long',
+        });
+      }
+
+      // STEP 4: Process categories if provided (ADDITIVE approach)
+      let arrayOfCategories = [...existingBlog.categories]; // Start with existing
+      if (categories) {
+        const newCategoryIds = categories.split(',').map((id) => id.trim());
+
+        // Validate new categories exist
+        const foundCategories = await Category.find({
+          _id: { $in: newCategoryIds },
+        });
+        if (foundCategories.length !== newCategoryIds.length) {
+          return res.status(400).json({
+            error: 'One or more categories not found',
+          });
+        }
+
+        // Merge with existing (remove duplicates)
+        const existingIds = existingBlog.categories.map((id) => id.toString());
+        const uniqueNewIds = newCategoryIds.filter(
+          (id) => !existingIds.includes(id)
+        );
+        arrayOfCategories = [...existingBlog.categories, ...uniqueNewIds];
+      }
+
+      // STEP 5: Process tags if provided (ADDITIVE approach)
+      let arrayOfTags = [...existingBlog.tags]; // Start with existing
+      if (tags) {
+        const newTagIds = tags.split(',').map((id) => id.trim());
+
+        // Validate new tags exist
+        if (newTagIds.length > 0) {
+          const foundTags = await Tag.find({ _id: { $in: newTagIds } });
+          if (foundTags.length !== newTagIds.length) {
+            return res.status(400).json({
+              error: 'One or more tags not found',
+            });
+          }
+
+          // Merge with existing (remove duplicates)
+          const existingTagIds = existingBlog.tags.map((id) => id.toString());
+          const uniqueNewTagIds = newTagIds.filter(
+            (id) => !existingTagIds.includes(id)
+          );
+          arrayOfTags = [...existingBlog.tags, ...uniqueNewTagIds];
+        }
+      }
+
+      // STEP 6: Update blog fields (only update provided fields)
+      if (title) {
+        existingBlog.title = title;
+        // Preserve existing slug for URL stability and SEO
+        existingBlog.mtitle = `${title} | ${process.env.APP_NAME}`;
+      }
+
+      if (body) {
+        existingBlog.body = body;
+        const cleanBody = stripHtml(body).result;
+        existingBlog.excerpt = smartTrim(cleanBody, 320, ' ', '...');
+        existingBlog.mdesc = cleanBody.substring(0, 160);
+      }
+
+      // Update categories and tags (always update these if provided)
+      existingBlog.categories = arrayOfCategories;
+      existingBlog.tags = arrayOfTags;
+
+      // STEP 7: Handle photo upload if provided
+      if (files.photo) {
+        if (files.photo.size > 1000000) {
+          return res.status(400).json({
+            error: 'Image should be less than 1mb in size',
+          });
+        }
+        existingBlog.photo.data = fs.readFileSync(files.photo.filepath);
+        existingBlog.photo.contentType = files.photo.mimetype;
+      }
+
+      // STEP 8: Save updated blog
+      const updatedBlog = await existingBlog.save();
+
+      // STEP 9: Return updated blog with populated data
+      const populatedBlog = await Blog.findById(updatedBlog._id)
+        .populate('categories', '_id name slug')
+        .populate('tags', '_id name slug')
+        .populate('postedBy', '_id name username');
+
+      res.json({
+        message: 'Blog updated successfully',
+        blog: populatedBlog,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error('Blog update error:', error);
+      const handledError = errorHandler(error);
+      return res.status(handledError.statusCode || 400).json({
+        error: handledError.message,
+      });
+    }
+  });
 };
