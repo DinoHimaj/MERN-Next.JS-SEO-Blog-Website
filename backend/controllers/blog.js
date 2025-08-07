@@ -107,9 +107,13 @@ exports.create = async (req, res) => {
       // Save blog with all data at once
       const savedBlog = await blog.save();
 
+      // Convert to plain object and remove photo
+      const responseData = savedBlog.toObject();
+      delete responseData.photo;
+
       res.status(201).json({
         message: 'Blog created successfully',
-        blog: savedBlog,
+        blog: responseData,
         timestamp: new Date().toISOString(),
       });
     } catch (error) {
@@ -189,9 +193,7 @@ exports.read = async (req, res) => {
       .populate('categories', '_id name slug')
       .populate('tags', '_id name slug')
       .populate('postedBy', '_id name username profile')
-      .select(
-        '_id title slug mtitle mdesc categories tags postedBy createdAt updatedAt'
-      );
+      .select('-photo');
 
     if (!blog) {
       return res.status(404).json({
@@ -251,7 +253,6 @@ exports.update = async (req, res) => {
     }
 
     try {
-      // STEP 1: Extract slug and check if blog exists
       const slug = req.params.slug.toLowerCase();
       const existingBlog = await Blog.findOne({ slug });
 
@@ -261,13 +262,11 @@ exports.update = async (req, res) => {
         });
       }
 
-      // STEP 2: Process form data
       const fields = firstValues(form, fieldsMultiple);
       const files = firstValues(form, filesMultiple);
 
       const { title, body, categories, tags } = fields;
 
-      // STEP 3: Validate provided data (only validate what's being updated)
       if (title && (!title.length || title.length < 3)) {
         return res.status(400).json({
           error: 'Title must be at least 3 characters long',
@@ -280,12 +279,10 @@ exports.update = async (req, res) => {
         });
       }
 
-      // STEP 4: Process categories if provided (ADDITIVE approach)
-      let arrayOfCategories = [...existingBlog.categories]; // Start with existing
+      let arrayOfCategories = [...existingBlog.categories];
       if (categories) {
         const newCategoryIds = categories.split(',').map((id) => id.trim());
 
-        // Validate new categories exist
         const foundCategories = await Category.find({
           _id: { $in: newCategoryIds },
         });
@@ -295,7 +292,6 @@ exports.update = async (req, res) => {
           });
         }
 
-        // Merge with existing (remove duplicates)
         const existingIds = existingBlog.categories.map((id) => id.toString());
         const uniqueNewIds = newCategoryIds.filter(
           (id) => !existingIds.includes(id)
@@ -303,12 +299,10 @@ exports.update = async (req, res) => {
         arrayOfCategories = [...existingBlog.categories, ...uniqueNewIds];
       }
 
-      // STEP 5: Process tags if provided (ADDITIVE approach)
-      let arrayOfTags = [...existingBlog.tags]; // Start with existing
+      let arrayOfTags = [...existingBlog.tags];
       if (tags) {
         const newTagIds = tags.split(',').map((id) => id.trim());
 
-        // Validate new tags exist
         if (newTagIds.length > 0) {
           const foundTags = await Tag.find({ _id: { $in: newTagIds } });
           if (foundTags.length !== newTagIds.length) {
@@ -317,7 +311,6 @@ exports.update = async (req, res) => {
             });
           }
 
-          // Merge with existing (remove duplicates)
           const existingTagIds = existingBlog.tags.map((id) => id.toString());
           const uniqueNewTagIds = newTagIds.filter(
             (id) => !existingTagIds.includes(id)
@@ -326,10 +319,8 @@ exports.update = async (req, res) => {
         }
       }
 
-      // STEP 6: Update blog fields (only update provided fields)
       if (title) {
         existingBlog.title = title;
-        // Preserve existing slug for URL stability and SEO
         existingBlog.mtitle = `${title} | ${process.env.APP_NAME}`;
       }
 
@@ -340,11 +331,9 @@ exports.update = async (req, res) => {
         existingBlog.mdesc = cleanBody.substring(0, 160);
       }
 
-      // Update categories and tags (always update these if provided)
       existingBlog.categories = arrayOfCategories;
       existingBlog.tags = arrayOfTags;
 
-      // STEP 7: Handle photo upload if provided
       if (files.photo) {
         if (files.photo.size > 1000000) {
           return res.status(400).json({
@@ -355,14 +344,13 @@ exports.update = async (req, res) => {
         existingBlog.photo.contentType = files.photo.mimetype;
       }
 
-      // STEP 8: Save updated blog
       const updatedBlog = await existingBlog.save();
 
-      // STEP 9: Return updated blog with populated data
       const populatedBlog = await Blog.findById(updatedBlog._id)
         .populate('categories', '_id name slug')
         .populate('tags', '_id name slug')
-        .populate('postedBy', '_id name username');
+        .populate('postedBy', '_id name username')
+        .select('-photo');
 
       res.json({
         message: 'Blog updated successfully',
@@ -377,4 +365,26 @@ exports.update = async (req, res) => {
       });
     }
   });
+};
+
+exports.photo = async (req, res) => {
+  try {
+    const slug = req.params.slug.toLowerCase();
+    const blog = await Blog.findOne({ slug }).select('photo');
+
+    if (!blog || !blog.photo.data) {
+      return res.status(404).json({
+        error: 'Photo not found',
+      });
+    }
+
+    res.set('Content-Type', blog.photo.contentType);
+    return res.send(blog.photo.data);
+  } catch (error) {
+    console.error('Blog photo error:', error);
+    const handledError = errorHandler(error);
+    return res.status(handledError.statusCode || 400).json({
+      error: handledError.message,
+    });
+  }
 };
