@@ -56,6 +56,12 @@ const Header = () => {
       <NavbarToggler onClick={toggle} />
       <Collapse isOpen={isOpen} navbar>
         <Nav className='ms-auto' navbar>
+          <NavItem>
+            <Link href='/blogs' passHref legacyBehavior>
+              <NavLink>Blogs</NavLink>
+            </Link>
+          </NavItem>
+
           {!auth && (
             <>
               <NavItem>
@@ -68,27 +74,7 @@ const Header = () => {
                   <NavLink>Signup</NavLink>
                 </Link>
               </NavItem>
-              <NavItem>
-                <Link href='/blogs' passHref legacyBehavior>
-                  <NavLink>Blogs</NavLink>
-                </Link>
-              </NavItem>
             </>
-          )}
-
-          {auth && (
-            <NavItem>
-              <NavLink
-                href='#'
-                onClick={(e) => {
-                  e.preventDefault();
-                  signout(() => Router.replace('/signin'));
-                }}
-                style={{ cursor: 'pointer' }}
-              >
-                Signout
-              </NavLink>
-            </NavItem>
           )}
 
           {auth && auth.role === 0 && (
@@ -104,6 +90,21 @@ const Header = () => {
               <Link href='/admin' passHref legacyBehavior>
                 <NavLink>{auth.name}'s Dashboard</NavLink>
               </Link>
+            </NavItem>
+          )}
+
+          {auth && (
+            <NavItem>
+              <NavLink
+                href='#'
+                onClick={(e) => {
+                  e.preventDefault();
+                  signout(() => Router.replace('/signin'));
+                }}
+                style={{ cursor: 'pointer' }}
+              >
+                Signout
+              </NavLink>
             </NavItem>
           )}
         </Nav>
