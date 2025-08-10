@@ -68,6 +68,11 @@ const Header = () => {
                   <NavLink>Signup</NavLink>
                 </Link>
               </NavItem>
+              <NavItem>
+                <Link href='/blogs' passHref legacyBehavior>
+                  <NavLink>Blogs</NavLink>
+                </Link>
+              </NavItem>
             </>
           )}
 

@@ -15,13 +15,45 @@ export const createBlog = async (blog, token) => {
     const data = await response.json();
 
     if (!response.ok) {
-      // Return the error from backend instead of throwing
       return { error: data.error || `HTTP error! status: ${response.status}` };
     }
 
     return data;
   } catch (err) {
     console.error('Blog creation error:', err);
+    return { error: err.message || 'Network error occurred' };
+  }
+};
+
+export const listAllBlogsCategoriesTags = async (limit = 10, skip = 0) => {
+  try {
+    const response = await fetch(`${API}/blogs-categories-tags`, {
+      method: 'POST', // Fix: Change to POST
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ limit, skip }), // Fix: Add body
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      return { error: data.error || `HTTP ${response.status}` };
+    }
+    return data;
+  } catch (err) {
+    console.error('Error fetching blogs, categories, and tags:', err);
+    return { error: err.message || 'Network error occurred' };
+  }
+};
+
+export const listBlogs = async () => {
+  try {
+    const response = await fetch(`${API}/blogs`);
+    const data = await response.json();
+    if (!response.ok) {
+      return { error: data.error || `HTTP ${response.status}` };
+    }
+    return data; // Array of blogs only
+  } catch (err) {
     return { error: err.message || 'Network error occurred' };
   }
 };

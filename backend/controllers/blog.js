@@ -163,7 +163,9 @@ exports.listAllBlogsCategoriesTags = async (req, res) => {
         .sort({ createdAt: -1 })
         .limit(limit)
         .skip(skip)
-        .select('_id title slug categories tags postedBy'),
+        .select(
+          '_id title slug excerpt categories tags postedBy createdAt updatedAt'
+        ),
 
       Category.find({}),
 
