@@ -1,11 +1,14 @@
-// Remove getConfig import and replace with direct environment variables
+// Public config for frontend (client-safe)
+const isProd =
+  process.env.NEXT_PUBLIC_PRODUCTION === 'true' ||
+  process.env.NODE_ENV === 'production';
 
-// For client-side (public) variables
 export const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || 'SEOBLOG';
-export const API =
-  process.env.NEXT_PUBLIC_PRODUCTION === 'true'
-    ? 'http://seoblog.com'
-    : process.env.NEXT_PUBLIC_API_DEVELOPMENT || 'http://localhost:8000/api';
 
-// For server-side only variables (only use these in getServerSideProps or API routes)
-// Not directly importable in client components
+export const API = isProd
+  ? process.env.NEXT_PUBLIC_API_PRODUCTION
+  : process.env.NEXT_PUBLIC_API_DEVELOPMENT || 'http://localhost:8000/api';
+
+export const DOMAIN = isProd
+  ? process.env.NEXT_PUBLIC_DOMAIN_PRODUCTION
+  : process.env.NEXT_PUBLIC_DOMAIN_DEVELOPMENT || 'http://localhost:3000';
