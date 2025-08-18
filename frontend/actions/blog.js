@@ -28,11 +28,12 @@ export const createBlog = async (blog, token) => {
 export const listAllBlogsCategoriesTags = async (limit = 10, skip = 0) => {
   try {
     const response = await fetch(`${API}/blogs-categories-tags`, {
-      method: 'POST', // Fix: Change to POST
+      method: 'POST',
       headers: {
+        Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ limit, skip }), // Fix: Add body
+      body: JSON.stringify({ limit, skip }),
     });
     const data = await response.json();
     if (!response.ok) {

@@ -4,8 +4,13 @@ import { listAllBlogsCategoriesTags } from '../../actions/blog';
 import Card from '../../components/blog/Card';
 import { APP_NAME, DOMAIN } from '../../config';
 import { withRouter } from 'next/router';
+import { useState } from 'react';
 
-const Blogs = ({ blogs, categories, tags, size, router }) => {
+const Blogs = ({ initialBlogs, categories, tags, initialSize, router }) => {
+  const [blogs, setBlogs] = useState(initialBlogs);
+  const [loadMoreLoading, setLoadMoreLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(initialSize >= 2);
+
   const head = () => (
     <Head>
       <title>{`Programming blogs | ${APP_NAME}`}</title>
@@ -15,7 +20,6 @@ const Blogs = ({ blogs, categories, tags, size, router }) => {
       />
       <link rel='canonical' href={`${DOMAIN}/blogs`} />
 
-      {/* Open Graph for Social Media */}
       <meta
         property='og:title'
         content={`Latest web development tutorials | ${APP_NAME}`}
@@ -28,31 +32,86 @@ const Blogs = ({ blogs, categories, tags, size, router }) => {
       <meta property='og:url' content={`${DOMAIN}/blogs`} />
       <meta property='og:site_name' content={`${APP_NAME}`} />
 
-      {/* Open Graph Images */}
       <meta property='og:image' content={`${DOMAIN}/images/seoblog.jpg`} />
       <meta
         property='og:image:secure_url'
         content={`${DOMAIN}/images/seoblog.jpg`}
       />
       <meta property='og:image:type' content='image/jpg' />
-
-      {/* Optional: Twitter Card */}
-      {/* <meta name='twitter:card' content='summary_large_image' />
-      <meta name='twitter:site' content='@yourtwitterhandle' />
-      <meta name='twitter:creator' content='@yourtwitterhandle' /> */}
-
-      {/* Optional: Facebook App ID if you have one */}
-      {/* <meta property="fb:app_id" content={`${FB_APP_ID}`} /> */}
     </Head>
   );
 
+  const loadMoreBlogs = async () => {
+    if (loadMoreLoading || !hasMore) return;
+
+    setLoadMoreLoading(true);
+    try {
+      const skip = blogs.length;
+      const limit = 3;
+
+      const data = await listAllBlogsCategoriesTags(limit, skip);
+
+      if (data?.error) {
+        return;
+      }
+
+      const { blogs: newBlogs = [] } = data;
+
+      if (newBlogs.length === 0) {
+        setHasMore(false);
+      } else {
+        setBlogs((prevBlogs) => [...prevBlogs, ...newBlogs]);
+        setHasMore(newBlogs.length >= limit);
+      }
+    } catch (error) {
+      console.error('Load more blogs error:', error);
+    } finally {
+      setLoadMoreLoading(false);
+    }
+  };
+
   const showAllBlogs = () => {
     return blogs.map((blog, i) => (
-      <article key={i}>
+      <article key={blog._id || i}>
         <Card blog={blog} />
         <hr />
       </article>
     ));
+  };
+
+  const showLoadMoreButton = () => {
+    if (!hasMore && !loadMoreLoading) {
+      return (
+        <div className='text-center mt-4 mb-5'>
+          <p className='text-muted'>No more blogs to load</p>
+        </div>
+      );
+    }
+
+    if (!hasMore) return null;
+
+    return (
+      <div className='text-center mt-4 mb-5'>
+        <button
+          className='btn btn-outline-primary btn-lg'
+          onClick={loadMoreBlogs}
+          disabled={loadMoreLoading}
+        >
+          {loadMoreLoading ? (
+            <>
+              <span
+                className='spinner-border spinner-border-sm me-2'
+                role='status'
+                aria-hidden='true'
+              ></span>
+              Loading more blogs...
+            </>
+          ) : (
+            <>Load More Blogs ({blogs.length} loaded)</>
+          )}
+        </button>
+      </div>
+    );
   };
 
   return (
@@ -68,12 +127,18 @@ const Blogs = ({ blogs, categories, tags, size, router }) => {
             </div>
             <section>
               <p>show categories and tags(placeholder for now)</p>
+              <p className='text-muted text-center'>
+                Showing {blogs.length} blog{blogs.length !== 1 ? 's' : ''}
+              </p>
             </section>
           </header>
         </div>
         <div className='container-fluid'>
           <div className='row'>
-            <div className='col-md-12'>{showAllBlogs()}</div>
+            <div className='col-md-12'>
+              {showAllBlogs()}
+              {showLoadMoreButton()}
+            </div>
           </div>
         </div>
       </main>
@@ -82,12 +147,23 @@ const Blogs = ({ blogs, categories, tags, size, router }) => {
 };
 
 Blogs.getInitialProps = async () => {
-  const data = await listAllBlogsCategoriesTags();
+  const data = await listAllBlogsCategoriesTags(2, 0);
   if (data?.error) {
-    return { blogs: [], categories: [], tags: [], size: 0, error: data.error };
+    return {
+      initialBlogs: [],
+      categories: [],
+      tags: [],
+      initialSize: 0,
+      error: data.error,
+    };
   }
   const { blogs = [], categories = [], tags = [], size = 0 } = data || {};
-  return { blogs, categories, tags, size };
+  return {
+    initialBlogs: blogs,
+    categories,
+    tags,
+    initialSize: blogs.length,
+  };
 };
 
 export default withRouter(Blogs);

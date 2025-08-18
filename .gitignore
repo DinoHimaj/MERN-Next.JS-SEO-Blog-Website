@@ -47,3 +47,7 @@ logs
 .DS_Store
 *.pem
 .vercel
+
+# Sample files and images (keep folder structure, ignore contents)
+sample/*
+!sample/.gitkeep
