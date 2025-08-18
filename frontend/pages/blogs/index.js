@@ -72,9 +72,8 @@ const Blogs = ({ initialBlogs, categories, tags, initialSize, router }) => {
 
   const showAllBlogs = () => {
     return blogs.map((blog, i) => (
-      <article key={blog._id || i}>
+      <article key={blog._id || i} className='blog-article fade-in'>
         <Card blog={blog} />
-        <hr />
       </article>
     ));
   };
@@ -82,8 +81,8 @@ const Blogs = ({ initialBlogs, categories, tags, initialSize, router }) => {
   const showLoadMoreButton = () => {
     if (!hasMore && !loadMoreLoading) {
       return (
-        <div className='text-center mt-4 mb-5'>
-          <p className='text-muted'>No more blogs to load</p>
+        <div className='blogs-end-message'>
+          <p>✨ You've reached the end of our stories</p>
         </div>
       );
     }
@@ -91,9 +90,9 @@ const Blogs = ({ initialBlogs, categories, tags, initialSize, router }) => {
     if (!hasMore) return null;
 
     return (
-      <div className='text-center mt-4 mb-5'>
+      <div className='text-center mt-5 mb-5'>
         <button
-          className='btn btn-outline-primary btn-lg'
+          className='btn btn-outline-primary btn-lg btn-load-more'
           onClick={loadMoreBlogs}
           disabled={loadMoreLoading}
         >
@@ -104,10 +103,10 @@ const Blogs = ({ initialBlogs, categories, tags, initialSize, router }) => {
                 role='status'
                 aria-hidden='true'
               ></span>
-              Loading more blogs...
+              Loading...
             </>
           ) : (
-            <>Load More Blogs ({blogs.length} loaded)</>
+            'Load More'
           )}
         </button>
       </div>
@@ -119,25 +118,38 @@ const Blogs = ({ initialBlogs, categories, tags, initialSize, router }) => {
       {head()}
       <main>
         <div className='container-fluid'>
-          <header>
-            <div className='col-md-12'>
-              <h1 className='display-4 font-weight-bold text-center'>
-                Programming and AI Blogs
+          <header className='page-header text-center mb-5'>
+            <div className='container'>
+              <h1 className='display-3 font-weight-bold blog-header-title'>
+                Programming & AI Insights
               </h1>
-            </div>
-            <section>
-              <p>show categories and tags(placeholder for now)</p>
-              <p className='text-muted text-center'>
-                Showing {blogs.length} blog{blogs.length !== 1 ? 's' : ''}
+              <p className='lead text-white-50 blog-header-subtitle'>
+                Discover the latest in web development, technology, and
+                innovation
               </p>
-            </section>
+            </div>
           </header>
-        </div>
-        <div className='container-fluid'>
-          <div className='row'>
-            <div className='col-md-12'>
-              {showAllBlogs()}
-              {showLoadMoreButton()}
+
+          <div className='container blog-container'>
+            <section className='mb-4'>
+              <div className='blog-stats'>
+                {blogs.length === 0 ? (
+                  'No blogs available yet'
+                ) : (
+                  <>
+                    Currently viewing{' '}
+                    <strong>{blogs.length}</strong>
+                    {blogs.length === 1 ? ' article' : ' articles'}
+                  </>
+                )}
+              </div>
+            </section>
+
+            <div className='row'>
+              <div className='col-lg-10 mx-auto'>
+                {showAllBlogs()}
+                {showLoadMoreButton()}
+              </div>
             </div>
           </div>
         </div>

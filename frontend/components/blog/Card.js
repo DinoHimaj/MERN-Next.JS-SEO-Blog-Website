@@ -5,66 +5,62 @@ import { API } from '../../config';
 const Card = ({ blog }) => {
   const showBlogCategories = (b) =>
     b?.categories?.map((c, i) => (
-      <Link
-        key={i}
-        href={`/categories/${c.slug}`}
-        className='badge badge-primary mr-2'
-        style={{ fontSize: '0.875rem', padding: '0.375rem 0.75rem' }}
-      >
+      <Link key={i} href={`/categories/${c.slug}`} className='badge-category'>
         {c.name}
       </Link>
     ));
 
   const showBlogTags = (b) =>
     b?.tags?.map((t, i) => (
-      <Link
-        key={i}
-        href={`/tags/${t.slug}`}
-        className='badge badge-light text-dark border mr-2'
-        style={{ fontSize: '0.875rem', padding: '0.375rem 0.75rem' }}
-      >
+      <Link key={i} href={`/tags/${t.slug}`} className='badge-tag'>
         #{t.name}
       </Link>
     ));
 
   return (
-    <div className='lead'>
-      <header>
-        <Link href={`/blog/${blog.slug}`}>
-          <h2 className='display-4 pt-3 pb-3 font-weight-bold'>{blog.title}</h2>
-        </Link>
-      </header>
-
-      <section>
-        <p className='mark ml-1 pt-2 pb-2'>
-          Written by {blog.postedBy.name} | Published{' '}
-          {moment(blog.updatedAt).format('MMM DD, YYYY')}
-        </p>
-      </section>
-
-      <section className='mb-3'>
-        {showBlogCategories(blog)}
-        {showBlogTags(blog)}
-      </section>
-
-      <div className='row'>
+    <div className='card blog-card'>
+      <div className='row g-0'>
         <div className='col-md-4'>
-          <section>
+          <div className='blog-card-image-wrapper'>
             <img
-              className='img img-fluid'
-              style={{ maxHeight: '250px', width: '100%', objectFit: 'cover' }}
+              className='blog-card-image'
               src={`${API}/blog/photo/${blog.slug}`}
               alt={blog.title}
             />
-          </section>
+          </div>
         </div>
+
         <div className='col-md-8'>
-          <section>
-            <div className='pb-3'>{blog.excerpt}</div>
-            <Link href={`/blog/${blog.slug}`} className='btn btn-primary'>
-              Read More
+          <div className='card-body p-4'>
+            <Link
+              href={`/blog/${blog.slug}`}
+              style={{ textDecoration: 'none' }}
+            >
+              <h2 className='blog-card-title h3'>{blog.title}</h2>
             </Link>
-          </section>
+
+            <div className='blog-card-meta mb-3'>
+              <span className='blog-card-author'>{blog.postedBy.name}</span>
+              <span className='mx-2'>•</span>
+              {moment(blog.updatedAt).format('MMM DD, YYYY')}
+              <span className='mx-2'>•</span>
+              {moment(blog.updatedAt).fromNow()}
+            </div>
+
+            <div className='mb-3'>
+              {showBlogCategories(blog)}
+              {showBlogTags(blog)}
+            </div>
+
+            <p className='blog-card-excerpt'>{blog.excerpt}</p>
+
+            <Link
+              href={`/blog/${blog.slug}`}
+              className='btn btn-primary btn-read-more'
+            >
+              Read Article →
+            </Link>
+          </div>
         </div>
       </div>
     </div>
