@@ -33,7 +33,7 @@ const Card = ({ blog }) => {
         <div className='col-md-8'>
           <div className='card-body p-4'>
             <Link
-              href={`/blog/${blog.slug}`}
+              href={`/blogs/${blog.slug}`}
               style={{ textDecoration: 'none' }}
             >
               <h2 className='blog-card-title h3'>{blog.title}</h2>
@@ -55,7 +55,7 @@ const Card = ({ blog }) => {
             <p className='blog-card-excerpt'>{blog.excerpt}</p>
 
             <Link
-              href={`/blog/${blog.slug}`}
+              href={`/blogs/${blog.slug}`}
               className='btn btn-primary btn-read-more'
             >
               Read Article →

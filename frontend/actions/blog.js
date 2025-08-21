@@ -58,3 +58,25 @@ export const listBlogs = async () => {
     return { error: err.message || 'Network error occurred' };
   }
 };
+
+export const getSingleBlog = async (slug) => {
+  try {
+    const response = await fetch(`${API}/blog/${slug}`, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return { error: data.error || `HTTP ${response.status}` };
+    }
+
+    return data;
+  } catch (err) {
+    console.error('Error fetching single blog:', err);
+    return { error: err.message || 'Network error occurred' };
+  }
+};
